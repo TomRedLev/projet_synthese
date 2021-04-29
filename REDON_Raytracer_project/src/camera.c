@@ -1,10 +1,9 @@
 /*=================================================================*/
-/*= E.Incerti - eric.incerti@univ-eiffel.fr                       =*/
-/*= Université Gustave Eiffel                                     =*/
-/*= Institut Gaspar Monge - Master Informatique 1                 =*/
-/*= Synthèse d'Image - préparation au lancé de rayon              =*/
-/*= [24/03/2021] positionnement/orientation d'une Caméra 3D       =*/
-/*= avec utilisation d'une texture GL pour afficher le pixmap     =*/
+
+/*= Tom REDON - M1 INFORMATIQUE                                   =*/
+/*= Université Gustave Eiffel - Master Informatique 1             =*/
+/*= Synthèse d'Image - Raytracer Project                          =*/
+/*= camera.c													  =*/
 /*=================================================================*/
 
 #include <g3x.h>
@@ -20,7 +19,7 @@
 
 typedef struct
 {
-  G3Xhmat   Md;      /* matrice directe (la seule utile)             */    
+  G3Xhmat   Md;      /* matrice directe (la seule utile)             */
   int       nbc,nbl; /* tailles courantes du pixmap                  */
   G3Xcolor *col;     /* la "carte" des pixels                        */
 } Cam;
@@ -39,7 +38,7 @@ static Cam Cree_camera_can(void)
   camera.Md  = g3x_Identity();
   camera.nbc = NBC;
   camera.nbl = NBL;
-  
+
  /* allocation de l'image aux tailles max */
   if (! (camera.col = (G3Xcolor*)calloc(NBC*NBL,sizeof(G3Xcolor))) ) g3x_Quit();
 
@@ -47,12 +46,12 @@ static Cam Cree_camera_can(void)
 }
 
 /*! mise à jour de la caméra (Coordonnées sphériques dans le repère de la cible <target>) !*/
-static void Camera_setup(Cam* camera, double theta, double phi, double dist, G3Xpoint target, double foc, double resol)  
-{ 
+static void Camera_setup(Cam* camera, double theta, double phi, double dist, G3Xpoint target, double foc, double resol)
+{
   /* la position déduite des coor. sphériques et le vecteur de visée pos->tar */
   G3Xpoint  pos = (G3Xpoint){ target.x + dist*cos(theta)*sin(phi),
                               target.y + dist*sin(theta)*sin(phi),
-                              target.z + dist*cos(phi) };  
+                              target.z + dist*cos(phi) };
   G3Xvector u   = g3x_SetVect(pos,target);
   g3x_Normalize(&u);
   /*                         |cos(rot_z)*sin(rot_y)   *
@@ -63,9 +62,9 @@ static void Camera_setup(Cam* camera, double theta, double phi, double dist, G3X
   /* angle secondaire (Z) */
   double rot_z = ( G3Xiszero(rot_y) ? PI : (u.y<0.?-1.:+1.)*acos(u.x/sin(rot_y)) );
 
-  
+
   /* (reset) */
-  camera->Md = g3x_Identity();  
+  camera->Md = g3x_Identity();
   /* échelle (attention à la symétrie sur l'axe des x) */
   camera->Md = g3x_ProdHMat(g3x_MakeHomothetieXYZ(-camera->nbc/(1.*camera->nbl) , 1., foc),camera->Md);
   /* alignement      */
@@ -108,7 +107,7 @@ static void Draw_camera(Cam* camera)
   /* caméra canonique */
 
   /*= Chargement Pixmap => Texture Gl =*/
-  glDisable(GL_LIGHTING); 
+  glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,camera->nbl,camera->nbc,GL_RGBA,GL_FLOAT,camera->col);
@@ -119,12 +118,12 @@ static void Draw_camera(Cam* camera)
       glTexCoord2d(1,0); glVertex3d(-1.,+1.,0.);
       glTexCoord2d(1,1); glVertex3d(+1.,+1.,0.);
       glTexCoord2d(0,1); glVertex3d(+1.,-1.,0.);
-    glEnd();  
+    glEnd();
   glDisable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
 
   /* cadre */
-  glDisable(GL_LIGHTING);  
+  glDisable(GL_LIGHTING);
   glColor3f(1.,1.,1.);
   glBegin(GL_LINE_LOOP);
     glVertex3d(-1.,-1.,0.);
@@ -146,7 +145,7 @@ static void Draw_camera(Cam* camera)
   glColor3f(1.,0.,0.);
   glBegin(GL_LINES);
     glVertex3d(0., 0.,-1.);
-    glVertex3d(0., 0.,0.5*cam_dis);      
+    glVertex3d(0., 0.,0.5*cam_dis);
   glEnd();
 	glEnable(GL_LIGHTING);
   /* dépilage de la matrice */
@@ -162,7 +161,7 @@ static void init(void)
 {
   /* la camera */
   camera = Cree_camera_can();
-  
+
   g3x_CreateScrollh_d("dF" ,&cam_foc, 0.0, 30., 1.,"distance focale");
   g3x_CreateScrollh_d("Di" ,&cam_dis, 0.0, 30., 1.,"distance de vue");
   g3x_CreateScrollh_d("Ph" ,&cam_phi, -PI, +PI, 1.,"angle de vue (vertical)");
@@ -173,7 +172,7 @@ static void init(void)
 
 /*! la fonction d'initialisation !*/
 static void draw()
-{  
+{
   Camera_setup(&camera,cam_the,cam_phi, cam_dis,cam_tar, cam_foc, cam_res);
   glPushMatrix();
     g3x_Material(G3Xo,0.1,0.5,0.5,0.1,1.);
@@ -204,7 +203,7 @@ int main(int argc, char **argv)
 	g3x_SetInitFunction(init); /* fonction d'initialisation */
 	g3x_SetDrawFunction(draw); /* fonction de dessin        */
 	g3x_SetExitFunction(quit); /* fonction de sorite        */
-	
+
 	/* lancement de la boucle principale */
   return g3x_MainStart();
 	/* RIEN APRES CA */
