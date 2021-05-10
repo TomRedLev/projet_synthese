@@ -21,7 +21,17 @@ src = src/
 # fichiers *.h locaux et lib.
 inc = -I./include $(incG2X)
 
-all : camera clean
+# fichiers
+EXEC = raytracer
+OBJ = raytracer.o objet.o camera.o
+
+all : $(EXEC) clean
+
+raytracer.o : $(src)raytracer.c $(src)objet.h $(src)camera.h
+
+objet.o : $(src)objet.c $(src)objet.h $(src)camera.h
+
+camera.o : $(src)camera.c $(src)camera.h
 
 # r�gle g�n�rique de cr�ation de xxx.o � partir de src/xxx.c
 %.o : $(src)%.c
@@ -30,7 +40,7 @@ all : camera clean
 	@echo "------------------------"
 
 # r�gle g�n�rique de cr�ation de l'executable xxx � partir de src/xxx.c (1 seul module)
-% : %.o
+$(EXEC) : $(OBJ)
 	@echo "assemblage [$^]->$@"
 	@$(CC) $^ $(lib) -o $@
 	@echo "------------------------"
