@@ -28,3 +28,8 @@ extern void set_up_camera(Cam *camera, G2Xpoint pos, double phi, double foc) {
 	camera->Md = g2x_Mat_x_Mat(g2x_Rotation(phi - PI/2), camera->Md);
 	camera->Md = g2x_Mat_x_Mat(g2x_Translation2d(pos.x, pos.y), camera->Md);
 }
+
+extern void draw_camera(Cam* cam) {
+	G2Xpoint E = g2x_Mat_x_Point(cam->Md, (G2Xpoint){0., -1.});
+	g2x_Plot(E.x, E.y, *cam->col, 25);
+}
