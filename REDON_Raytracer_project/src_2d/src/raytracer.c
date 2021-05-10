@@ -7,6 +7,18 @@ static int WWIDTH=512, WHEIGHT=512;
 /* limites de la zone reelle associee a la fenetre */
 static double   wxmin=-2.,wymin=-2.,wxmax=+2.,wymax=+2.;
 
+static bool SHADOW_FLAG = false;
+static bool RAY_FLAG = false;
+static double n = 1.;
+
+#define NC 5
+Objet CTab[NC], *CList = NULL;
+
+#define NBLIGHT 1
+static G2Xpoint SpotLight[NBLIGHT];
+
+Cam cam;
+
 /* des points controlables     */
 static G2Xpoint A,B,C,D,E;
 
