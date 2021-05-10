@@ -40,6 +40,92 @@ static void toggle_square(void) { _SQUAREFLAG_=!_SQUAREFLAG_; }
 /* des num. de boutons */
 static int  SPOTBUT,TRIGBUT;
 
+
+
+
+
+
+
+static void raytracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
+	if (rec == 0) {
+		return ;
+	}
+	rec = rec -1;
+
+	G2Xpoint I;
+	G2Xvector Ni;
+
+	Objet* C = CList;
+
+	do {
+		G2Xpoint A = g2x_Mat_x_Point(C->Mi, Ri->org);
+		G2Xvector u = g2x_Mat_x_Vector(C->Mi, Ri->dir);
+		g2x_Normalize(&u);
+		G2Xpoint Ic;
+		G2Xvector Nc;
+		if (C->inter(&Ic, &Nc, A, u)) {
+			double d = g2x_SqrDist(g2x_Mat_x_Point(C->Md, Ic), Ri->org);
+			if (d < Ri->dis) {
+				Ri->obj = C;
+				Ri->dis = d;
+				I = g2x_Mat_x_Point(C->Md, Ic);
+				Ni = g2x_Mat_x_Vector(C->Mn, Nc);
+				g2x_Normalize(&Ni);
+			}
+		}
+	} while ((C = C->next) != CList);
+
+	if (Ri->obj == NULL) {
+		return ;
+	}
+
+	Objet* Ci = Ri->obj;
+
+	int i;
+	for (i = 0; i < nbl; i++) {
+		G2Xvector IL = g2x_SetNormalVect(I, L[i]);
+		double x = Ci->mat.diff * g2x_ProdScal(Ni, IL);
+		if (x > 0. && Ci->mat.shin > 0.) {
+			x = pow(x, 1./Ci->mat.shin) * Ci->mat.diff * (1.-Ci->mat.shin);
+			Ri->col.r += x*1.;
+			Ri->col.g += x*1.;
+			Ri->col.b += x*1.;
+		}
+	}
+
+	if (!RAY_FLAG) {
+		return ;
+	}
+	Ri->col.a = 0.66;
+	g2x_Line(I.x, I.y, Ri->org.x, Ri->org.y, Ri->col, 1);
+	Ri->col.a = 0.;
+}
+
+static void cam_tracer(Cam* camera, Objet* CList, G2Xpoint* L, int nbl, int rec) {
+	G2Xpoint E = g2x_Mat_x_Point(camera->Md, (G2Xpoint){0., -1.});
+	double xpas = 2./camera->nbc;
+	int x;
+	G2Xcolor *rgb = camera->col;
+	for (x = 0; x < camera->nbc; x++) {
+		G2Xpoint pix = (G2Xpoint) {(-1. + x * xpas), 0.};
+		G2Xpoint A = g2x_Mat_x_Point(camera->Md, pix);
+		G2Xvector u = g2x_SetVect(E, A);
+		g2x_Normalize(&u);
+		Ray R = cree_ray(A, u);
+		ray_tracer(&R, CList, L, nbl, rec);
+		*rgb = R.col;
+		rgb++;
+	}
+}
+
+
+
+
+
+
+
+
+
 /* un fonction associee a un bouton 'popup' : */
 /* remise aux positions initiales             */
 static void reset(void)

@@ -129,6 +129,25 @@ extern Objet cree_carre_can(G2Xcolor col, Matiere mat) {
 
 
 
-void reset_objet(Objet *c) {
-	return ;
+extern void reset_objet(Objet *c) {
+	c->Md = g2x_Identity();
+	c->Mn = g2x_Identity();
+	c->Mi = g2x_Identity();
+}
+
+extern void rescale_objet(Objet* obj, double a, double b) {
+	obj->Md = g2x_Mat_x_Mat(g2x_Homothetie2d(a, b), obj->Md);
+	obj->Mn = g2x_Mat_x_Mat(g2x_Homothetie2d(b, a), obj->Mn);
+	obj->Mi = g2x_Mat_x_Mat(obj->Mi, g2x_Homothetie2d(1./a, 1./b));
+}
+
+extern void zrotate_objet(Objet* obj, double arad) {
+	obj->Md = g2x_Mat_x_Mat(g2x_Rotation(arad), obj->Md);
+	obj->Mn = g2x_Mat_x_Mat(g2x_Rotation(arad), obj->Mn);
+	obj->Mi = g2x_Mat_x_Mat(obj->Mi, g2x_Rotation(-arad));
+}
+
+extern void translate_objet(Objet* obj, double x, double y) {
+	obj->Md = g2x_Mat_x_Mat(g2x_Translation2d(x, y), obj->Md);
+	obj->Mi = g2x_Mat_x_Mat(obj->Mi, g2x_Translation2d(-x, -y));
 }

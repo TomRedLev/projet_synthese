@@ -12,21 +12,18 @@
 	} Ray;
 
 	typedef struct {
-		G2Xpoint eye;
-		G2Xpoint ctr;
-		int res;
-		G2Xpoint* pix;
-		G2Xcolor* col;
-		G2Xpoint A, B;
-		double len;
+		G2Xhmat Md;
+		int nbc;
+		G2Xcolor *col;
 	} Cam;
 
 	G2Xvector Reflechi(int orient, G2Xvector u, G2Xvector N);
 	G2Xvector Transmis(int orient, G2Xvector u, G2Xvector N, double n);
 
 	Ray cree_ray(G2Xpoint A, G2Xvector u);
-	Cam cree_cam(G2Xpoint ctr, G2Xpoint eye, double w, int res);
-	void set_up_camera(Cam* camera);
+	Ray draw_ray(Ray* R);
+	Cam cree_cam(int nbc);
+	void set_up_camera(Cam* camera, G2Xpoint pos, double phi, double foc);
 	void draw_camera(Cam* camera);
 
 #endif
