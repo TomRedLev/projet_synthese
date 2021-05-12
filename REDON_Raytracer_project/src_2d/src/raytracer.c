@@ -107,7 +107,7 @@ static void init(void)
 {
 	cam = cree_cam(1);
 	G2Xpoint pos_cam = g2x_Point(1., 0.);
-	set_up_camera(&cam, pos_cam, 0., 0.4);
+	set_up_camera(&cam, pos_cam, 0., .4);
 
 	Matiere mat = (Matiere){0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
 	CTab[0] = cree_cercle_can(G2Xr, mat);
@@ -127,10 +127,12 @@ static void init(void)
 	translate_objet(&CTab[3], -0.25, -0.25);
 
 	int i;
-	double angle = -1.25;
+	double angle = 0;
 	for (i = 0; i < NBRAY; i++) {
-		RTab[i] = cree_ray(pos_cam, g2x_Vector(pos_cam, (G2Xpoint){-1, angle}));
-		angle += 0.25;
+		G2Xpoint pixel = g2x_Mat_x_Point(cam.Md, (G2Xpoint) {-1. + angle, 0.});
+		G2Xpoint eye = g2x_Mat_x_Point(cam.Md, (G2Xpoint) {0, 1});
+		RTab[i] = cree_ray(eye, g2x_SetVect(pixel, eye));
+		angle += 2./NBRAY;
 	}
 }
 
