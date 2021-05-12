@@ -39,7 +39,6 @@ static void ray_tracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
 		if (C->inter(&Ic, &Nc, A, u)) {
 			double d = g2x_SqrDist(g2x_Mat_x_Point(C->Md, Ic), Ri->org);
 			if (d < Ri->dis) {
-				printf("Hi there\n");
 				Ri->obj = C;
 				Ri->dis = d;
 				Ri->col = C->col;
@@ -99,9 +98,8 @@ void display_list(Cam* camera) {
 	int x;
 	double step = 4./camera->nbc;
 	for (x = 0; x < camera->nbc; x++) {
-		printf("%f %f %f\n", rgb->r, rgb->g, rgb->b);
 		g2x_SetColor(*rgb);
-		g2x_Line(-2 + (x * step), -1., -2 + (x * step), -2., *rgb, step);
+		g2x_Line(-2 + (x * step), -1.5, -2 + (x * step), -2., *rgb, step);
 		rgb++;
 	}
 }
