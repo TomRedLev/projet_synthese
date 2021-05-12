@@ -3,16 +3,19 @@
 #include "camera.h"
 
 /* tailles de la fenêtre (en pixel) */
-static int WWIDTH=512, WHEIGHT=512;
+static int WWIDTH=264, WHEIGHT=264;
 /* limites de la zone reelle associee a la fenetre */
 static double   wxmin=-2.,wymin=-2.,wxmax=+2.,wymax=+2.;
 
 static bool SHADOW_FLAG = false;
-static bool RAY_FLAG = false;
+static bool RAY_FLAG = true;
 static double n = 1.;
 
 #define NC 5
 Objet CTab[NC], *CList = NULL;
+
+#define NBRAY 10
+Ray RTab[NBRAY];
 
 #define NBLIGHT 1
 static G2Xpoint SpotLight[NBLIGHT];
@@ -70,6 +73,7 @@ static void raytracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
 	if (!RAY_FLAG) {
 		return ;
 	}
+	printf("test");
 	Ri->col.a = 0.66;
 	g2x_Line(I.x, I.y, Ri->org.x, Ri->org.y, Ri->col, 1);
 	Ri->col.a = 0.;
@@ -102,13 +106,46 @@ static void cam_tracer(Cam* camera, Objet* CList, G2Xpoint* L, int nbl, int rec)
 static void init(void)
 {
 	cam = cree_cam(1);
-	printf("%s\n", cam.col);
+	G2Xpoint pos_cam = g2x_Point(1., 0.);
+	set_up_camera(&cam, pos_cam, 0., 0.4);
+
+	Matiere mat = (Matiere){0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+	CTab[0] = cree_cercle_can(G2Xr, mat);
+	rescale_objet(&CTab[0], 0.2, 0.2);
+	translate_objet(&CTab[0], -1, -1);
+
+	CTab[1] = cree_carre_can(G2Xg, mat);
+	rescale_objet(&CTab[1], 0.2, 0.2);
+	translate_objet(&CTab[1], 0., 1.);
+
+	CTab[2] = cree_cercle_can(G2Xb, mat);
+	rescale_objet(&CTab[2], 0.2, 0.2);
+	translate_objet(&CTab[2], -0.25, 0.25);
+
+	CTab[3] = cree_carre_can(G2Xb, mat);
+	rescale_objet(&CTab[3], 0.2, 0.2);
+	translate_objet(&CTab[3], -0.25, -0.25);
+
+	int i;
+	double angle = -1.25;
+	for (i = 0; i < NBRAY; i++) {
+		RTab[i] = cree_ray(pos_cam, g2x_Vector(pos_cam, (G2Xpoint){-1, angle}));
+		angle += 0.25;
+	}
 }
 
 /* La fonction de dessin */
 static void draw()
 {
 	draw_camera(&cam);
+	draw_cercle(&CTab[0]);
+	draw_carre(&CTab[1]);
+	draw_cercle(&CTab[2]);
+	draw_carre(&CTab[3]);
+	int i;
+	for (i = 0; i < NBRAY; i++) {
+		draw_ray(&RTab[i]);
+	}
 }
 
 /* la fonction d'animation */

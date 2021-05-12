@@ -22,7 +22,9 @@
 	} Objet;
 
 	Objet cree_cercle_can(G2Xcolor col, Matiere mat);
+	void draw_cercle(Objet *c);
 	Objet cree_carre_can(G2Xcolor col, Matiere mat);
+	void draw_carre(Objet *c);
 
 	void reset_objet(Objet *obj);
 	void rescale_objet(Objet *obj, double a, double b);

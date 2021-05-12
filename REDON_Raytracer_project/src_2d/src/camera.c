@@ -7,8 +7,14 @@ extern Ray cree_ray(G2Xpoint A, G2Xvector u) {
 	g2x_Normalize(&R.dir);
 	R.col = G2Xk;
 	R.obj = NULL;
-	R.dis = 10000.;
+	R.dis = 10.;
 	return R;
+}
+
+extern Ray draw_ray(Ray* R) {
+	G2Xpoint vec = (G2Xpoint) {(R->org.x) + (R->dir.x), (R->org.y) + (R->dir.y)};
+	g2x_Line(R->org.x, R->org.y, (R->org.x) + (R->dis) * (vec.x), (R->org.y) + (R->dis) * (vec.y), R->col, 5);
+	printf("%f %f\n", (R->org.x) + (R->dis) * (vec.x), (R->org.y) + (R->dis) * (vec.y));
 }
 
 extern Cam cree_cam(int nbc) {
@@ -30,6 +36,11 @@ extern void set_up_camera(Cam *camera, G2Xpoint pos, double phi, double foc) {
 }
 
 extern void draw_camera(Cam* cam) {
-	G2Xpoint E = g2x_Mat_x_Point(cam->Md, (G2Xpoint){0., -1.});
-	g2x_Plot(E.x, E.y, *cam->col, 25);
+	G2Xpoint camera = g2x_Mat_x_Point(cam->Md, (G2Xpoint){0., 0.});
+	G2Xpoint foc = g2x_Mat_x_Point(cam->Md, (G2Xpoint){0., .4});
+	g2x_Triangle(camera.x, camera.y + 0.2, camera.x, camera.y - 0.2, foc.x, foc.y, *cam->col, 5);
+	g2x_Line(camera.x, camera.y, foc.x, foc.y, *cam->col, 5);
+	g2x_Plot(camera.x, camera.y, *cam->col, 5);
+	g2x_Plot(foc.x, foc.y, *cam->col, 5);
+
 }

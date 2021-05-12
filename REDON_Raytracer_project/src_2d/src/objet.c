@@ -1,7 +1,7 @@
 #include "objet.h"
 #include <g2x.h>
 
-static void draw_cercle(Objet *c) {
+extern void draw_cercle(Objet *c) {
 	static G2Xpoint P[721];
 	static bool flag = false;
 
@@ -60,7 +60,7 @@ extern Objet cree_cercle_can(G2Xcolor col, Matiere mat) {
 	return c;
 }
 
-static void draw_carre(Objet *c) {
+extern void draw_carre(Objet *c) {
 	G2Xpoint P;
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	g2x_Color4fv(c->col);
@@ -69,9 +69,9 @@ static void draw_carre(Objet *c) {
 	glVertex2d(P.x, P.y);
 	P = g2x_Mat_x_Point(c->Md, (G2Xpoint) {+1., -1.});
 	glVertex2d(P.x, P.y);
-	P = g2x_Mat_x_Point(c->Md, (G2Xpoint) {-1., +1.});
-	glVertex2d(P.x, P.y);
 	P = g2x_Mat_x_Point(c->Md, (G2Xpoint) {+1., +1.});
+	glVertex2d(P.x, P.y);
+	P = g2x_Mat_x_Point(c->Md, (G2Xpoint) {-1., +1.});
 	glVertex2d(P.x, P.y);
 	glEnd();
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
