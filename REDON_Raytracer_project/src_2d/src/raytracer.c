@@ -14,20 +14,16 @@ static double n = 1.;
 #define NC 5
 Objet CTab[NC], *CList = NULL;
 
-#define NBRAY 10
-Ray RTab[NBRAY];
-
 #define NBLIGHT 1
 static G2Xpoint SpotLight[NBLIGHT];
 
 Cam cam;
 
-
-static void raytracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
+static void ray_tracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
 	if (rec == 0) {
 		return ;
 	}
-	rec = rec -1;
+	rec = rec - 1;
 
 	G2Xpoint I;
 	G2Xvector Ni;
@@ -43,14 +39,16 @@ static void raytracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
 		if (C->inter(&Ic, &Nc, A, u)) {
 			double d = g2x_SqrDist(g2x_Mat_x_Point(C->Md, Ic), Ri->org);
 			if (d < Ri->dis) {
+				printf("Hi there\n");
 				Ri->obj = C;
 				Ri->dis = d;
+				Ri->col = C->col;
 				I = g2x_Mat_x_Point(C->Md, Ic);
 				Ni = g2x_Mat_x_Vector(C->Mn, Nc);
 				g2x_Normalize(&Ni);
 			}
 		}
-	} while ((C = C->next) != CList);
+	} while ((C = C->next) != NULL);
 
 	if (Ri->obj == NULL) {
 		return ;
@@ -73,14 +71,13 @@ static void raytracer(Ray *Ri, Objet *CList, G2Xpoint *L, int nbl, int rec) {
 	if (!RAY_FLAG) {
 		return ;
 	}
-	printf("test");
-	Ri->col.a = 0.66;
-	g2x_Line(I.x, I.y, Ri->org.x, Ri->org.y, Ri->col, 1);
+	/* Ri->col.a = 0.66; */
+	g2x_Line(I.x, I.y, Ri->org.x, Ri->org.y, G2Xk, 1);
 	Ri->col.a = 0.;
 }
 
 static void cam_tracer(Cam* camera, Objet* CList, G2Xpoint* L, int nbl, int rec) {
-	G2Xpoint E = g2x_Mat_x_Point(camera->Md, (G2Xpoint){0., -1.});
+	G2Xpoint E = g2x_Mat_x_Point(camera->Md, (G2Xpoint){0., 1.});
 	double xpas = 2./camera->nbc;
 	int x;
 	G2Xcolor *rgb = camera->col;
@@ -88,10 +85,23 @@ static void cam_tracer(Cam* camera, Objet* CList, G2Xpoint* L, int nbl, int rec)
 		G2Xpoint pix = (G2Xpoint) {(-1. + x * xpas), 0.};
 		G2Xpoint A = g2x_Mat_x_Point(camera->Md, pix);
 		G2Xvector u = g2x_SetVect(E, A);
-		g2x_Normalize(&u);
+		/* g2x_Normalize(&u); */
 		Ray R = cree_ray(A, u);
 		ray_tracer(&R, CList, L, nbl, rec);
 		*rgb = R.col;
+		rgb++;
+	}
+}
+
+
+void display_list(Cam* camera) {
+	G2Xcolor* rgb = camera->col;
+	int x;
+	double step = 4./camera->nbc;
+	for (x = 0; x < camera->nbc; x++) {
+		printf("%f %f %f\n", rgb->r, rgb->g, rgb->b);
+		g2x_SetColor(*rgb);
+		g2x_Line(-2 + (x * step), -1., -2 + (x * step), -2., *rgb, step);
 		rgb++;
 	}
 }
@@ -101,39 +111,38 @@ static void cam_tracer(Cam* camera, Objet* CList, G2Xpoint* L, int nbl, int rec)
 
 
 
-
 /* la fonction d'initialisation */
 static void init(void)
 {
-	cam = cree_cam(1);
+	cam = cree_cam(1000);
 	G2Xpoint pos_cam = g2x_Point(1., 0.);
 	set_up_camera(&cam, pos_cam, 0., .4);
 
-	Matiere mat = (Matiere){0.25, 0.25, 0.25, 0.25, 0.25, 0.25};
+	SpotLight[0] = (G2Xpoint){2, 2};
+
+	Matiere mat = (Matiere){1., 1., 1., 1., 1., 1.};
 	CTab[0] = cree_cercle_can(G2Xr, mat);
 	rescale_objet(&CTab[0], 0.2, 0.2);
 	translate_objet(&CTab[0], -1, -1);
+	CList = &CTab[0];
+	Objet *elem = CList;
 
 	CTab[1] = cree_carre_can(G2Xg, mat);
 	rescale_objet(&CTab[1], 0.2, 0.2);
 	translate_objet(&CTab[1], 0., 1.);
+	elem->next = &CTab[1];
+	elem = elem->next;
 
 	CTab[2] = cree_cercle_can(G2Xb, mat);
 	rescale_objet(&CTab[2], 0.2, 0.2);
 	translate_objet(&CTab[2], -0.25, 0.25);
+	elem->next = &CTab[2];
+	elem = elem->next;
 
 	CTab[3] = cree_carre_can(G2Xb, mat);
 	rescale_objet(&CTab[3], 0.2, 0.2);
 	translate_objet(&CTab[3], -0.25, -0.25);
-
-	int i;
-	double angle = 0;
-	for (i = 0; i < NBRAY; i++) {
-		G2Xpoint pixel = g2x_Mat_x_Point(cam.Md, (G2Xpoint) {-1. + angle, 0.});
-		G2Xpoint eye = g2x_Mat_x_Point(cam.Md, (G2Xpoint) {0, 1});
-		RTab[i] = cree_ray(eye, g2x_SetVect(pixel, eye));
-		angle += 2./NBRAY;
-	}
+	elem->next = &CTab[3];
 }
 
 /* La fonction de dessin */
@@ -144,10 +153,9 @@ static void draw()
 	draw_carre(&CTab[1]);
 	draw_cercle(&CTab[2]);
 	draw_carre(&CTab[3]);
-	int i;
-	for (i = 0; i < NBRAY; i++) {
-		draw_ray(&RTab[i]);
-	}
+	g2x_Plot(SpotLight[0].x, SpotLight[1].y, G2Xy, 15);
+	cam_tracer(&cam, CList, SpotLight, 1, 1);
+	display_list(&cam);
 }
 
 /* la fonction d'animation */

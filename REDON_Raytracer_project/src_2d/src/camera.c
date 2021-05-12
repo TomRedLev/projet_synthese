@@ -13,8 +13,7 @@ extern Ray cree_ray(G2Xpoint A, G2Xvector u) {
 
 extern Ray draw_ray(Ray* R) {
 	G2Xpoint vec = (G2Xpoint) {(R->org.x) + (R->dir.x), (R->org.y) + (R->dir.y)};
-	printf("%f %f\n", vec.x, vec.y);
-	g2x_Line(R->org.x, R->org.y, (R->org.x) - (vec.x) * (R->dis), (R->org.y) - (vec.y) * (R->dis), R->col, 5);
+	g2x_Line(R->org.x, R->org.y, (R->org.x) + (vec.x) * (R->dis), (R->org.y) + (vec.y) * (R->dis), R->col, 5);
 }
 
 extern Cam cree_cam(int nbc) {
