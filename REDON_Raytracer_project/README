@@ -1,12 +1,10 @@
 ==================================================================================
-Jan.2021
-==================================================================================
-E.Incerti - eric.incerti@univ-eiffel.fr
-Universite Gustave Eiffel
+Tom REDON
+M1 Informatique - Groupe 2
 ==================================================================================
 
 CONTENU DU DOSSIER
-- README/LISEZMOI
+- README
 
 - script de test OpenGl : whereismygl.sh
 - script d'installation libg2x, lib3x : install.sh
@@ -15,11 +13,10 @@ CONTENU DU DOSSIER
   	- libg2x.6c.32b++[.so/.a] (pour Linux 32 bits, avec g++)
   	- libg2x.6c.64b[.so/.a]   (pour Linux 64 bits, avec gcc)
   	- libg2x.6c.64b++[.so/.a] (pour Linux 64 bits, avec g++)
-		- include/g2x_*.h   
-		- src/g2x_*.c       
-		- Makefile 
-- code.2d/
-		- include/ (vide) 
+		- include/g2x_*.h
+		- src/g2x_*.c
+		- Makefile
+- src_2d/
 		- src/ (quelques exemples)
 		- Makefile
 - libg3x.6c/
@@ -27,132 +24,45 @@ CONTENU DU DOSSIER
   	- libg3x.6c.32b++[.so/.a] (pour Linux 32 bits, avec g++)
   	- libg3x.6c.64b[.so/.a]   (pour Linux 64 bits, avec gcc)
   	- libg3x.6c.64b++[.so/.a] (pour Linux 64 bits, avec g++)
-		- include/g3x_*.h   
-		- src/g3x_*.c       
-		- Makefile 
-- code.3d/
-		- include/ (vide) 
+		- include/g3x_*.h
+		- src/g3x_*.c
+		- Makefile
+- src_3d/
 		- src/ (quelques exemples)
 		- Makefile
 
 ==================================================================================
 A) Vérifier la présence d'OpenGl
-  normalement OpenGl est présent par défaut sur toute distribution Linux
-  pour vérifier : 
-  $> sh ./whereismygl.sh
-  
- -----emplacement des libGL*.so-----
-/usr/lib/x86_64-linux-gnu/libGL.so
-/usr/lib/x86_64-linux-gnu/libGLU.so
-/usr/lib/x86_64-linux-gnu/libglut.so
------emplacement des include gl*.h-----
-/usr/include/GLES/gl.h
-/usr/include/GL/gl.h
-/usr/include/GL/glu.h
-/usr/include/GL/glut.h
------glxinfo------
-server glx version string: 1.4
-client glx version string: 1.4
-GLX version: 1.4
-OpenGL core profile version string: 4.6.0 NVIDIA 390.141
-OpenGL core profile shading language version string: 4.60 NVIDIA
-OpenGL version string: 4.6.0 NVIDIA 390.141
-OpenGL shading language version string: 4.60 NVIDIA
-OpenGL ES profile version string: OpenGL ES 3.2 NVIDIA 390.141
-OpenGL ES profile shading language version string: OpenGL ES GLSL ES 3.20
-    GL_EXT_shader_implicit_conversions, GL_EXT_shader_integer_mix, 
------glxgears-----
-Running synchronized to the vertical refresh.  The framerate should be
-approximately the same as the monitor refresh rate.
- 
+   normalement OpenGl est présent par défaut sur toute distribution Linux
+   pour vérifier :
+   $> sh ./whereismygl.sh
+
    si ça ne marche pas, il faut installer OpenGL
    $> sudo apt-get install freeglut3
    $> sh ./whereismygl.sh
-   
+
    Autre option : récupérer quelque part les .so nécessaires (libGL.so, libGLU.so, libglut.so)
    et les .h nécessaires (gl.h, glu.h, glut.h) et les installer en local.
 
 ==================================================================================
 B) Installation en local des libg2x et libg3x
 
-  ATTENTION : le chemin absolu "/*/*/*libg2x" ne doit contenir ni espace, ni accent, ni caractère spécial
-              => linux n'aime pas !     
-
 	1°) Choisir l'emplacement et exécuter le script
-		$> cd          
+		$> cd
 		$> mkdir ./mylibs/
 		$> cd ~/mylibs/
-		$> sh ./install.sh (n'affiche rien)
-
-    * Ce script va modifier (ou créer) le fichier de configuration ~/.bashrc
-    * Des variables d'environnement sont créées ou modifiée pour automatiser la compilation
-      Ces variables sont définies relativement au répertoire courant (ici ~/mylibs)
-      Si ce chemin change (déplacement / changement de nom), l'installation doit être relancée.
+		$> sh ./install.sh
 
 	2°) Vérifier l'installation
 		$> more ~/.bashrc
-
-		vous devez voir, en fin de fichier, quelque chose comme ça :  
-
-#-------------------------------------------------------------------------------
-# lun. 18 janv. 2021 09:44:33 CET
-# Environnement variables for the graphic libraries <g2x> <g3x>
-#-------------------------------------------------------------------------------
-# tests if the config. is 32 or 64 bits
-case `uname -m` in
-		i686) export PROCBIT=32b;;
-		x86_64 | ia64) export PROCBIT=64b;; 
-esac
-# version (04/2020)
-export VERSION=6c
-# g2x librairies
-export G2X_PATH=/home/mylibs/libg2x.$VERSION
-# g3x librairies
-export G3X_PATH=/home/mylibs/libg3x.$VERSION
-# standard path fot the OpenGL libraries (gl, glu, glut) - if it doesn't work : whereismygl.sh
-export lGL_PATH=/usr/lib
-export iGL_PATH=/usr/include
-# environnement variables for Makefile : the good version (32b/64b) of <libg2x>
-export libG2X='-lm -L$(lGL_PATH) -lGL -lGLU -lglut -L$(G2X_PATH) -lg2x.$(VERSION).$(PROCBIT)'
-export incG2X='-I$(G2X_PATH)/include -I$(iGL_PATH)'
-# environnement variables for Makefile : the good version (32b/64b) of <libg3x>
-export libG3X='-lm -L$(lGL_PATH) -lGL -lGLU -lglut -L$(G3X_PATH) -lg3x.$(VERSION).$(PROCBIT)'
-export incG3X='-I$(G3X_PATH)/include -I$(iGL_PATH)'
-# export path for 'ld' (directories linker)
-export LD_LIBRARY_PATH=$G2X_PATH:$G3X_PATH:$LD_LIBRARY_PATH
-#-------------------------------------------------------------------------------
-
-		$> echo $LD_LIBRARY_PATH
-		******:/home/mylibs/libg2x.6C/:/home/mylibs/libg3x.6c
-		
 ==================================================================================
 C) TESTER...
-	1°) libg2x
-		 > cd code.2d/
-		 > make ?		 
----------compilation informations----------
-  processor      : 64b
-  compiler       : gcc
-  options        : -O2 -ansi
-  lib g2x/OpenGl : -lm -L/usr/lib -lGL -lGLU -lglut -L/home/mylibs/libg2x.6c -lg2x.6c.64b
-  headers        : -I/home/mylibs/libg2x.6c/include -I/usr/include
+	1°) Raytracer 2D
+		 > cd src_2d/
+		 > make
+		 > ./raytracer
 
-		> make 
-		> ./g2x_squelette
-		> ./g2x_example
-		
-	2°) libg3x
-		 > cd code.3d/
-		 > make ?		 
----------compilation informations----------
-  processor      : 64b
-  compiler       : gcc
-  options        : -O2 -ansi
-  lib g2x/OpenGl : -lm -L/usr/lib -lGL -lGLU -lglut -L/home/mylibs/libg3x.6c -lg3x.6c.64b
-  headers        : -I/home/mylibs/libg3x.6c/include -I/usr/include
-
-		> make
-		> ./g3x_squelette
-		> ./g3x_example
-		
-		
+	2°) Raytracer 2D
+		 > cd src_3d/
+		 > make
+		 > ./camera
